@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>お絵描きアプリ</title>
+     <style>
+         html {
+             min-height: 100%;
+         }
+        body {
+           background: linear-gradient(#93B874 10%, #C9DCB9 70%, #C9DCB9 90%);
+        }
+
+        #canvas {
+           margin: 10px;
+           background: #ffffff;
+           border: 1px solid #aaaaaa;
+        }
+     </style>
+  </head>
+
+<body>
+<div style="text-align:center">
+    <h1><font size="7">お絵描きアプリ</font></h1>
+	<canvas id="canvas" width="700" height="500"></canvas><br>
+	<label>色<input id="color" type="color"></label>
+	<label>太さ<input id="width" type="number" min="1" max="30"></label>
+	<input type="button" id="delete_canvas" value="クリア" onClick="delete_canvas()">
+  	<input type="button" id="pencil" value="鉛筆" class="active" onClick="tool(1)">
+  	<input type="button" id="eraser" value="消しゴム" onclick="tool(2)">
+    
+    </div>
+
+<script type="text/javascript">
+
+	var drawing = false;
+	var before_x = 0;
+	var before_y = 0;
+
+	var canvas = document.getElementById('canvas');
+	var ctx = canvas.getContext('2d');
+
+	canvas.addEventListener('mousemove', draw_canvas);
+	// マウスをクリックしてる時
+	canvas.addEventListener('mousedown', function(e) {
+		drawing = true;
+		var rect = e.target.getBoundingClientRect();
+		before_x = e.clientX - rect.left;
+		before_y = e.clientY - rect.top;
+	});
+	// マウスをクリックしてない時
+	canvas.addEventListener('mouseup', function() {
+		drawing = false;
+	});
+
+// 描画の処理
+function draw_canvas(e) {
+	// drawingがtrueじゃなかったら返す
+	if (!drawing){
+		return
+	};
+	var rect = e.target.getBoundingClientRect();
+	var x = e.clientX - rect.left;
+	var y = e.clientY - rect.top;
+    ctx.lineCap = 'round';
+	ctx.beginPath();
+	ctx.moveTo(before_x, before_y);
+	ctx.lineTo(x, y);
+	ctx.stroke();
+	ctx.closePath();
+	before_x = x;
+	before_y = y;
+    //線の太さ
+	var w = document.getElementById('width').value;
+    ctx.lineWidth = w;
+    //色の変更
+	var color = document.getElementById('color').value;
+    ctx.strokeStyle = color;	
+}
+//削除
+function delete_canvas(){
+  ret = confirm('canvasの内容を削除します。');// クリアボタンクリックした時にアラートを表示
+  // アラートで「OK」を選んだ時
+  if (ret == true){
+  	ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+}
+    
+// 鉛筆と消しゴムの切り替え
+var pen = document.getElementById('pencil');
+var era = document.getElementById('eraser');
+//鉛筆
+function tool(btnNum){
+  if (btnNum == 1){
+    ctx.globalCompositeOperation = 'source-over';
+    pen.className = 'active';
+    era.className = '';
+  }
+//消しゴム
+  else if (btnNum == 2){
+    ctx.globalCompositeOperation = 'destination-out';
+    pen.className = '';
+    era.className = 'active';
+  }
+}
+
+</script>
+
+ 
+</body>
+</html>
